@@ -1,16 +1,1 @@
-[
-  {
-    "id": 2,
-    "description": "nachos",
-    "status": "done",
-    "createdAt": "Sun Feb 15 2026 15:49:15 GMT+0530 (India Standard Time)",
-    "updatedAt": "Sun Feb 15 2026 16:44:23 GMT+0530 (India Standard Time)"
-  },
-  {
-    "id": 3,
-    "description": "icecream",
-    "status": "todo",
-    "createdAt": "Sun Feb 15 2026 15:50:57 GMT+0530 (India Standard Time)",
-    "updatedAt": "Sun Feb 15 2026 15:50:57 GMT+0530 (India Standard Time)"
-  }
-]
+[]

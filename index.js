@@ -13,7 +13,7 @@ rl.question('Welcome to Task Tracker!\nCreate your first task now!\n', (answer) 
         tasks = JSON.parse(data)
     }
 
-    const newId = tasks.length+1
+    const newId = tasks[tasks.length-1].id + 1
     
     const parts = answer.split(" ");
     let toPerform = parts[0]
@@ -76,6 +76,18 @@ rl.question('Welcome to Task Tracker!\nCreate your first task now!\n', (answer) 
             else console.log(`Task Updated successfully (ID: ${task2.id})`)
         })
     }
+    else if(parts.length === 1 & toPerform === "list"){
+        for(let i = 0; i<tasks.length; i++){
+            console.log(tasks[i])
+        }
+    }
+    else if(toPerform === "list"){
+        let stat = parts[1]
+        for(let i = 0; i<tasks.length; i++){
+            if(tasks[i].status === stat) console.log(tasks[i])
+        }
+    }
+    else console.log("Write Properly!!")
 
     rl.close();
 });
