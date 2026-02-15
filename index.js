@@ -48,10 +48,32 @@ rl.question('Welcome to Task Tracker!\nCreate your first task now!\n', (answer) 
     }
     else if(toPerform === "delete"){
         tasks = tasks.filter(task => task.id !== parseInt(parts[1]))
-
+        
         fs.writeFile("temp.json", JSON.stringify(tasks, null, 2), function (err) {
             if (err) console.error(err)
-            else console.log(`Task Updated successfully (ID: ${parseInt(parts[1])})`)
+                else console.log(`Task Updated successfully (ID: ${parseInt(parts[1])})`)
+        })
+    }
+    else if(toPerform === "mark-in-progress"){
+        const task2 = tasks.find(t => t.id === parseInt(parts[1]))
+        
+        task2.status = "in-progress"
+        task2.updatedAt = new Date().toString()
+    
+        fs.writeFile("temp.json", JSON.stringify(tasks, null, 2), function (err) {
+            if (err) console.error(err)
+            else console.log(`Task Updated successfully (ID: ${task2.id})`)
+        })
+    }
+    else if(toPerform === "mark-done"){
+        const task2 = tasks.find(t => t.id === parseInt(parts[1]))
+        
+        task2.status = "done"
+        task2.updatedAt = new Date().toString()
+    
+        fs.writeFile("temp.json", JSON.stringify(tasks, null, 2), function (err) {
+            if (err) console.error(err)
+            else console.log(`Task Updated successfully (ID: ${task2.id})`)
         })
     }
 
