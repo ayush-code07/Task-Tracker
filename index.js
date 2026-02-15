@@ -14,22 +14,46 @@ rl.question('Welcome to Task Tracker!\nCreate your first task now!\n', (answer) 
     }
 
     const newId = tasks.length+1
-
+    
     const parts = answer.split(" ");
-    let newTasks = {
-        id : newId,
-        description : parts.slice(1).join(" ").replace(/^"|"$/g, ""),
-        status : "todo",
-        createdAt : new Date().toString(),
-        updatedAt : new Date().toString()
+    let toPerform = parts[0]
+    if(toPerform === "add"){
+        toPerform = "todo"
+
+        let newTasks = {
+            id : newId,
+            description : parts.slice(1).join(" ").replace(/^"|"$/g, ""),
+            status : toPerform,
+            createdAt : new Date().toString(),
+            updatedAt : new Date().toString()
+        }
+    
+        tasks.push(newTasks)
+    
+        fs.writeFile("temp.json", JSON.stringify(tasks, null, 2), function (err) {
+            if (err) console.error(err)
+            else console.log(`Task added successfully (ID: ${newId})`)
+        })
     }
+    else if(toPerform === "update"){
+        const task2 = tasks.find(t => t.id === parseInt(parts[1]))
+        
+        task2.description = parts.slice(2).join(" ").replace(/^"|"$/g, "")
+        task2.updatedAt = new Date().toString()
 
-    tasks.push(newTasks)
+        fs.writeFile("temp.json", JSON.stringify(tasks, null, 2), function (err) {
+            if (err) console.error(err)
+            else console.log(`Task Updated successfully (ID: ${task2.id})`)
+        })
+    }
+    else if(toPerform === "delete"){
+        tasks = tasks.filter(task => task.id !== parseInt(parts[1]))
 
-    fs.writeFile("temp.json", JSON.stringify(tasks, null, 2), function (err) {
-        if (err) console.error(err)
-        else console.log(`Task added successfully (ID: ${newId})`)
-    })
+        fs.writeFile("temp.json", JSON.stringify(tasks, null, 2), function (err) {
+            if (err) console.error(err)
+            else console.log(`Task Updated successfully (ID: ${parseInt(parts[1])})`)
+        })
+    }
 
     rl.close();
 });
