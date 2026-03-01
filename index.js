@@ -1,11 +1,17 @@
+// Import required modules
 const fs = require('fs')
 const readline = require('node:readline');
 const { stdin: input, stdout: output } = require('node:process');
+const { notDeepEqual } = require('node:assert');
+const { stat } = require('node:fs');
 
+// Create readline interface for CLI input/output
 const rl = readline.createInterface({ input, output });
 
-rl.question('Welcome to Task Tracker!\nCreate your first task now!\n', (answer) => {
+// Prompt user for command
+rl.question('Welcome to Task Tracker!\nEnter a command:\n', (answer) => {
 
+    // === 1. Load existing tasks from file ===
     let tasks = []
 
     if (fs.existsSync("temp.json")) {
@@ -13,17 +19,20 @@ rl.question('Welcome to Task Tracker!\nCreate your first task now!\n', (answer) 
         tasks = JSON.parse(data)
     }
 
+    // === 2. Generate new ID safely ===
     const newId = (tasks.length) ? tasks[tasks.length - 1].id + 1 : 1
 
+    // Split input into words
     const parts = answer.split(" ");
     let toPerform = parts[0]
+
+    // === ADD TASK ===
     if (toPerform === "add") {
-        toPerform = "todo"
 
         let newTasks = {
             id: newId,
             description: parts.slice(1).join(" ").replace(/^"|"$/g, ""),
-            status: toPerform,
+            status: "todo",
             createdAt: new Date().toString(),
             updatedAt: new Date().toString()
         }
@@ -35,69 +44,102 @@ rl.question('Welcome to Task Tracker!\nCreate your first task now!\n', (answer) 
             else console.log(`Task added successfully (ID: ${newId})`)
         })
     }
-    else if (toPerform === "update") {
-        const task2 = tasks.find(t => t.id === parseInt(parts[1]))
 
-        task2.description = parts.slice(2).join(" ").replace(/^"|"$/g, "")
-        task2.updatedAt = new Date().toString()
+    // === UPDATE TASK DESCRIPTION ===
+    else if (toPerform === "update") {
+        const taskId = parseInt(parts[1])
+        const task = tasks.find(t => t.id === taskId)
+
+        if(!task) return notFound(taskId)
+
+        task.description = parts.slice(2).join(" ").replace(/^"|"$/g, "")
+        task.updatedAt = new Date().toString()
 
         fs.writeFile("temp.json", JSON.stringify(tasks, null, 2), function (err) {
             if (err) console.error(err)
             else console.log(`Task Updated successfully (ID: ${task2.id})`)
         })
     }
+
+    // === DELETE TASK ===
     else if (toPerform === "delete") {
-        tasks = tasks.filter(task => task.id !== parseInt(parts[1]))
+
+        const taskId = parseInt(parts[1])
+        const exists = tasks.some(t => t.id === taskId)
+
+        if(!exists) return notFound(taskId)
+
+        tasks = tasks.filter(t => t.id !== taskId)
 
         fs.writeFile("temp.json", JSON.stringify(tasks, null, 2), function (err) {
             if (err) console.error(err)
             else console.log(`Task Deleted successfully (ID: ${parseInt(parts[1])})`)
         })
     }
+
+    // === MARK IN PROGRESS ===
     else if (toPerform === "mark-in-progress") {
-        const task2 = tasks.find(t => t.id === parseInt(parts[1]))
-        if (!task2) {
-            console.log(`Task with ID ${parts[1]} not found!`);
-            rl.close();
-            return;
-        }
 
-        task2.status = "in-progress"
-        task2.updatedAt = new Date().toString()
+        const taskId = parseInt(parts[1])
+        const task = tasks.find(t => t.id === taskId)
+
+        if(!task) return notFound(taskId)
+
+        task.status = "in-progress"
+        task.updatedAt = new Date().toString()
 
         fs.writeFile("temp.json", JSON.stringify(tasks, null, 2), function (err) {
             if (err) console.error(err)
-            else console.log(`Task Updated successfully (ID: ${task2.id})`)
+            else console.log(`Task marked as in-progress (ID: ${task2.id})`)
         })
     }
+
+    // === MARK DONE ===
     else if (toPerform === "mark-done") {
-        const task2 = tasks.find(t => t.id === parseInt(parts[1]))
-        if (!task2) {
-            console.log(`Task with ID ${parts[1]} not found!`);
-            rl.close();
-            return;
-        }
+        
+        const taskId = parseInt(parts[1])
+        const task = tasks.find(t => t.id === taskId)
 
-        task2.status = "done"
-        task2.updatedAt = new Date().toString()
+        if(!task) return notFound(taskId)
+
+        task.status = "done"
+        task.updatedAt = new Date().toString()
 
         fs.writeFile("temp.json", JSON.stringify(tasks, null, 2), function (err) {
             if (err) console.error(err)
-            else console.log(`Task Updated successfully (ID: ${task2.id})`)
+            else console.log(`Task marked as done (ID: ${task2.id})`)
         })
     }
-    else if (parts.length === 1 && toPerform === "list") {
-        for (let i = 0; i < tasks.length; i++) {
-            console.log(tasks[i])
-        }
-    }
+
+    // === LIST TASKS ===
     else if (toPerform === "list") {
-        let stat = parts[1]
-        for (let i = 0; i < tasks.length; i++) {
-            if (tasks[i].status === stat) console.log(tasks[i])
+
+        const statusFilter = parts[1]
+
+        if(tasks.length === 0){
+            console.log("No tasks found.")
+        }
+        else{
+            tasks.forEach(task => {
+                if(!statusFilter || task.status === statusFilter){
+                    console.log(`${task.id}: ${task.description} [${task.status}]`);
+                }
+            })
         }
     }
-    else console.log("Write Properly!!")
+
+    // === INVALID COMMAND ===
+    else console.log("Invalid command.")
 
     rl.close();
 });
+
+// =====================================
+// Helper Functions
+// =====================================
+
+// Handle "task not found" case
+function notFound(id){
+    console.log(`Task with ID ${id} not found.`);
+    rl.close()
+}
