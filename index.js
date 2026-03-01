@@ -51,13 +51,15 @@ rl.question('Welcome to Task Tracker!\nCreate your first task now!\n', (answer) 
 
         fs.writeFile("temp.json", JSON.stringify(tasks, null, 2), function (err) {
             if (err) console.error(err)
-            else console.log(`Task Updated successfully (ID: ${parseInt(parts[1])})`)
+            else console.log(`Task Deleted successfully (ID: ${parseInt(parts[1])})`)
         })
     }
     else if (toPerform === "mark-in-progress") {
         const task2 = tasks.find(t => t.id === parseInt(parts[1]))
         if (!task2) {
             console.log(`Task with ID ${parts[1]} not found!`);
+            rl.close();
+            return;
         }
 
         task2.status = "in-progress"
@@ -72,6 +74,8 @@ rl.question('Welcome to Task Tracker!\nCreate your first task now!\n', (answer) 
         const task2 = tasks.find(t => t.id === parseInt(parts[1]))
         if (!task2) {
             console.log(`Task with ID ${parts[1]} not found!`);
+            rl.close();
+            return;
         }
 
         task2.status = "done"
