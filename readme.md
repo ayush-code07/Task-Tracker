@@ -191,8 +191,11 @@ This project is open-source and available under the MIT License.
 
 ## 👨‍💻 Author
 
-Ayush Agarwal
+Ayush Jagnani
 
 ---
 
 ⭐ If you found this project helpful, consider giving it a star!
+
+Project idea taken from:
+https://roadmap.sh/projects/task-tracker
